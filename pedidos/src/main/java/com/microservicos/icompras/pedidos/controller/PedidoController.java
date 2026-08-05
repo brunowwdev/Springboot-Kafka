@@ -1,9 +1,9 @@
 package com.microservicos.icompras.pedidos.controller;
 
-import com.microservicos.icompras.pedidos.Repository.PedidoRepository;
 import com.microservicos.icompras.pedidos.controller.dto.NovoPedidoDTO;
 import com.microservicos.icompras.pedidos.controller.mappers.PedidoMapper;
 import com.microservicos.icompras.pedidos.service.PedidoService;
+import com.microservicos.icompras.pedidos.validator.PedidoValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
