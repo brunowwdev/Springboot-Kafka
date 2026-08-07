@@ -5,7 +5,6 @@ import com.microservicos.icompras.pedidos.controller.dto.NovoPedidoDTO;
 import com.microservicos.icompras.pedidos.model.ItemPedido;
 import com.microservicos.icompras.pedidos.model.Pedido;
 import com.microservicos.icompras.pedidos.model.enums.StatusPedido;
-import org.jspecify.annotations.NonNull;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
 
@@ -43,7 +42,7 @@ public interface PedidoMapper {
         pedido.getItens().forEach(item -> item.setPedido(pedido));
     }
 
-    private static @NonNull BigDecimal calcularTotal(Pedido pedido) {
+    private static  BigDecimal calcularTotal(Pedido pedido) {
         return pedido.getItens().stream().map(item ->
                 item.getValorUnitario().multiply(BigDecimal.valueOf(item.getQuantidade()))
         ).reduce(BigDecimal.ZERO, BigDecimal::add).abs();
