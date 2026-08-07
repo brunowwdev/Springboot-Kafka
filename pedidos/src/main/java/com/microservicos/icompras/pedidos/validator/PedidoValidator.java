@@ -6,6 +6,7 @@ import com.microservicos.icompras.pedidos.client.representation.ClienteRepresent
 import com.microservicos.icompras.pedidos.client.representation.ProdutoRepresentation;
 import com.microservicos.icompras.pedidos.model.ItemPedido;
 import com.microservicos.icompras.pedidos.model.Pedido;
+import com.microservicos.icompras.pedidos.model.exception.ValidationException;
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +35,8 @@ public class PedidoValidator {
             ClienteRepresentation cliente = response.getBody();
             log.info("Cliente de codigo {} encontrado: {}", cliente.codigo(),cliente.nome());
         }catch (FeignException.NotFound e){
-            log.error("Cliente não encontrado");
+            var message = String.format("Cliente de codigo %d não encontrado", codigoCliente);
+            throw new ValidationException("codigoCliente",message);
         }
     }
 
@@ -44,7 +46,8 @@ public class PedidoValidator {
             ProdutoRepresentation produto = response.getBody();
             log.info("Produto de codigo {} encontrado: {}", produto.codigo(),produto.nome());
         } catch (FeignException.NotFound e){
-            log.error("Item não encontrado");
+            var message = String.format("Produto de codigo %d não encontrado", item.getCodigoProduto());
+            throw new ValidationException("codigoProduto",message);
         }
     }
 }
