@@ -4,31 +4,32 @@ services:
   zookeeper:
     image: confluentinc/cp-zookeeper:7.2.15
     environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_CLIENT_PORT: ${ZOOKEEPER_CLIENT_PORT}
+      ZOOKEEPER_TICK_TIME: ${ZOOKEEPER_TICK_TIME}
     ports:
-      - "22181:2181"
+      - "${ZOOKEEPER_PORT_EXTERNAL}:${ZOOKEEPER_CLIENT_PORT}"
 
   kafka:
     image: confluentinc/cp-kafka:7.2.15 #Crie um container chamado kafka usando a imagem do Kafka fornecida pela Confluent.
     depends_on: #Antes de iniciar o Kafka, inicie o container do Zookeeper.
       - zookeeper
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181 #O ZooKeeper está disponível no host zookeeper, na porta 2181.
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092, PLAINTEXT_HOST://localhost:29092 #endereco onde os clientes podem se conectar ao kafka dentro do docker 9092 e fora do docker 29092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT, PLAINTEXT_HOST:PLAINTEXT #Aqui você está dizendo qual protocolo de segurança cada listener utiliza.
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1 #O offset indica a posição até onde um consumidor (mais precisamente, um consumer group) já avançou na leitura de uma partição de um tópico.
+      KAFKA_BROKER_ID: ${KAFKA_BROKER_ID}
+      KAFKA_ZOOKEEPER_CONNECT: ${KAFKA_ZOOKEEPER_CONNECT} #O ZooKeeper está disponível no host zookeeper, na porta 2181.
+      KAFKA_ADVERTISED_LISTENERS: ${KAFKA_ADVERTISED_LISTENERS} #endereco onde os clientes podem se conectar ao kafka dentro do docker 9092 e fora do docker 29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: ${KAFKA_LISTENER_SECURITY_PROTOCOL_MAP} #Aqui você está dizendo qual protocolo de segurança cada listener utiliza.
+      KAFKA_INTER_BROKER_LISTENER_NAME: ${KAFKA_INTER_BROKER_LISTENER_NAME}
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: ${KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR} #O offset indica a posição até onde um consumidor (mais precisamente, um consumer group) já avançou na leitura de uma partição de um tópico.
     ports:
-      - "29092:29092" #porta local e porta do container
+      - "${KAFKA_PORT_EXTERNAL}:${KAFKA_PORT_EXTERNAL}" #porta local e porta do container
+
   kafka-ui:
     image: provectuslabs/kafka-ui:v0.7.2
     depends_on:
       - kafka
     environment:
-      KAFKA_CLUSTERS_0_NAME: local
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
-      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+      KAFKA_CLUSTERS_0_NAME: ${KAFKA_CLUSTERS_0_NAME}
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: ${KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS}
+      KAFKA_CLUSTERS_0_ZOOKEEPER: ${KAFKA_CLUSTERS_0_ZOOKEEPER}
     ports:
-      - "8090:8080"
+      - "${KAFKA_UI_PORT_EXTERNAL}:8080"
