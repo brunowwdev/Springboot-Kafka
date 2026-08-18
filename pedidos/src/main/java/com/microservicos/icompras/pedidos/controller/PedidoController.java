@@ -6,13 +6,12 @@ import com.microservicos.icompras.pedidos.controller.mappers.PedidoMapper;
 import com.microservicos.icompras.pedidos.model.ErroResposta;
 import com.microservicos.icompras.pedidos.model.exception.ItemNaoEncontradoException;
 import com.microservicos.icompras.pedidos.model.exception.ValidationException;
+import com.microservicos.icompras.pedidos.publisher.DetalhePedidoMapper;
+import com.microservicos.icompras.pedidos.publisher.representation.DetalhePedidoRepresentation;
 import com.microservicos.icompras.pedidos.service.PedidoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("pedidos")
@@ -21,6 +20,7 @@ public class PedidoController {
 
     private final PedidoService pedidoService;
     private final PedidoMapper pedidoMapper;
+    private final DetalhePedidoMapper detalhePedidoMapper;
 
     @PostMapping
     public ResponseEntity<Object> criar(@RequestBody NovoPedidoDTO dto) {
@@ -44,5 +44,14 @@ public class PedidoController {
             return  ResponseEntity.badRequest().body(erro);
         }
 
+    }
+
+    @GetMapping("{codigo}")
+    public ResponseEntity<DetalhePedidoRepresentation> obterDetalhesPedido(@PathVariable Long codigo){
+        return pedidoService
+                .carregarDadosCompletosPedido(codigo)//vai tentar obter os detalhes do pedido
+                .map(detalhePedidoMapper::map) //obtendo ele vai mapear para o detalhe pedido representation
+                .map(ResponseEntity::ok) //depois vai retornar no response entity com codigo ok
+                .orElseGet(() -> ResponseEntity.notFound().build()); //senao houver o pedido vai retornar um response entity not found
     }
 }
