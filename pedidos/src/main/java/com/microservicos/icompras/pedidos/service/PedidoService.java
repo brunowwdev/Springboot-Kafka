@@ -2,8 +2,13 @@ package com.microservicos.icompras.pedidos.service;
 
 import com.microservicos.icompras.pedidos.Repository.ItemPedidoRepository;
 import com.microservicos.icompras.pedidos.Repository.PedidoRepository;
+import com.microservicos.icompras.pedidos.client.ClientesClient;
+import com.microservicos.icompras.pedidos.client.ProdutosClient;
 import com.microservicos.icompras.pedidos.client.ServicoBancarioClient;
+import com.microservicos.icompras.pedidos.client.representation.ClienteRepresentation;
+import com.microservicos.icompras.pedidos.client.representation.ProdutoRepresentation;
 import com.microservicos.icompras.pedidos.model.DadosPagamento;
+import com.microservicos.icompras.pedidos.model.ItemPedido;
 import com.microservicos.icompras.pedidos.model.Pedido;
 import com.microservicos.icompras.pedidos.model.enums.StatusPedido;
 import com.microservicos.icompras.pedidos.model.enums.TipoPagamento;
@@ -12,10 +17,11 @@ import com.microservicos.icompras.pedidos.validator.PedidoValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
-
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +33,8 @@ public class PedidoService {
     private  final ItemPedidoRepository itemPedidoRepository;
     private final PedidoValidator validator;
     private final ServicoBancarioClient servicoBancarioClient;
+    private final ClientesClient apiClients;
+    private final ProdutosClient apiProdutos;
 
     @Transactional
     public Pedido criarPedido(Pedido pedido) {
@@ -56,6 +64,7 @@ public class PedidoService {
         Pedido pedido = pedidoEncontrado.get();
         if(sucesso){
             pedido.setStatus(StatusPedido.PAGO);
+
         } else  {
             pedido.setStatus(StatusPedido.ERRO_PAGAMENTO);
             pedido.setObservacoes(observacoes);
@@ -85,5 +94,30 @@ public class PedidoService {
         pedido.setChavePagamento(novaChavePagamento);
 
         pedidoRepository.save(pedido);
+    }
+
+    public Optional<Pedido> carregarDadosCompletosPedido(Long codigoPedido) {
+        Optional<Pedido> pedido =  pedidoRepository.findById(codigoPedido);
+        pedido.ifPresent(this::carregarDadosCliente);
+        pedido.ifPresent(this::carregarItensPedido);
+        return pedido;
+    }
+
+    private void carregarDadosCliente(Pedido pedido) {
+        Long codigoCliente = pedido.getCodigoCliente();
+        var response = apiClients.obterDados(codigoCliente);
+        pedido.setDadosCliente(response.getBody());
+    }
+
+    private void carregarItensPedido(Pedido pedido) {
+        List<ItemPedido> itens = itemPedidoRepository.findByPedido(pedido);
+        pedido.setItens(itens);
+        pedido.getItens().forEach(this::carregarDadosProduto); //para cada elemento do itemPedido ele vai chamar a funcao carregarDadosProduto
+    }
+
+    private void carregarDadosProduto(ItemPedido item) {
+        Long codigoProduto = item.getCodigoProduto();
+        var response = apiProdutos.obterDados(codigoProduto);
+        item.setNome(response.getBody().nome());
     }
 }

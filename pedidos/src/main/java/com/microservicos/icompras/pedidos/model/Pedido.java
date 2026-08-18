@@ -1,5 +1,6 @@
 package com.microservicos.icompras.pedidos.model;
 
+import com.microservicos.icompras.pedidos.client.representation.ClienteRepresentation;
 import com.microservicos.icompras.pedidos.controller.dto.DadosPagamentoDTO;
 import com.microservicos.icompras.pedidos.model.enums.StatusPedido;
 import jakarta.persistence.*;
@@ -53,4 +54,7 @@ public class Pedido {
 
     @OneToMany(mappedBy = "pedido")
     private List<ItemPedido> itens;
+
+    @Transient
+    private ClienteRepresentation dadosCliente;
 }
