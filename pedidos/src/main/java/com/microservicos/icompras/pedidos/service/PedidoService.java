@@ -5,19 +5,17 @@ import com.microservicos.icompras.pedidos.Repository.PedidoRepository;
 import com.microservicos.icompras.pedidos.client.ClientesClient;
 import com.microservicos.icompras.pedidos.client.ProdutosClient;
 import com.microservicos.icompras.pedidos.client.ServicoBancarioClient;
-import com.microservicos.icompras.pedidos.client.representation.ClienteRepresentation;
-import com.microservicos.icompras.pedidos.client.representation.ProdutoRepresentation;
 import com.microservicos.icompras.pedidos.model.DadosPagamento;
 import com.microservicos.icompras.pedidos.model.ItemPedido;
 import com.microservicos.icompras.pedidos.model.Pedido;
 import com.microservicos.icompras.pedidos.model.enums.StatusPedido;
 import com.microservicos.icompras.pedidos.model.enums.TipoPagamento;
 import com.microservicos.icompras.pedidos.model.exception.ItemNaoEncontradoException;
+import com.microservicos.icompras.pedidos.publisher.PagamentoPublisher;
 import com.microservicos.icompras.pedidos.validator.PedidoValidator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 
@@ -35,6 +33,7 @@ public class PedidoService {
     private final ServicoBancarioClient servicoBancarioClient;
     private final ClientesClient apiClients;
     private final ProdutosClient apiProdutos;
+    private final PagamentoPublisher pagamentoPublisher;
 
     @Transactional
     public Pedido criarPedido(Pedido pedido) {
@@ -63,13 +62,20 @@ public class PedidoService {
         }
         Pedido pedido = pedidoEncontrado.get();
         if(sucesso){
-            pedido.setStatus(StatusPedido.PAGO);
+            prepararPrepararPedidoPago(pedido);
 
         } else  {
             pedido.setStatus(StatusPedido.ERRO_PAGAMENTO);
             pedido.setObservacoes(observacoes);
         }
         pedidoRepository.save(pedido);
+    }
+
+    private void prepararPrepararPedidoPago(Pedido pedido) {
+        pedido.setStatus(StatusPedido.PAGO);
+        carregarDadosCliente(pedido);
+        carregarItensPedido(pedido);
+        pagamentoPublisher.publicar(pedido);
     }
 
     @Transactional
