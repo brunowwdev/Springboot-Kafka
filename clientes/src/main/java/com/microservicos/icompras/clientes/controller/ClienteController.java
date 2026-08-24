@@ -1,7 +1,6 @@
 package com.microservicos.icompras.clientes.controller;
 
 import com.microservicos.icompras.clientes.model.Cliente;
-import com.microservicos.icompras.clientes.repository.ClienteRepository;
 import com.microservicos.icompras.clientes.service.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
