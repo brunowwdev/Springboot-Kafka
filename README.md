@@ -154,6 +154,4 @@ Esse projeto foi criado principalmente para colocar em prática conceitos que s�
 
 **Tecnologias:** Java • Spring Boot • REST • Microsserviços • Kafka • Docker • PostgreSQL
 
-[GitHub](https://github.com/brunowwdev)
-
 [LinkedIn](https://www.linkedin.com/in/brunomanhaesalves/)
