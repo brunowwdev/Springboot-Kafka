@@ -29,6 +29,6 @@ public class PedidoMapper {
     }
 
     private ItemPedido mapItem(DetalheItemPedidoRepresentation representation) {
-        return new ItemPedido(representation.codigoProduto(),representation.nome(),representation.valorUnitario(),representation.quantidade());
+        return new ItemPedido(representation.codigoProduto(),representation.nome(),representation.valorUnitario(),representation.quantidade(),representation.total());
     }
 }
