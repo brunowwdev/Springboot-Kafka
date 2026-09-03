@@ -14,9 +14,9 @@ import java.util.Map;
 @Service
 public class NotaFiscalService {
 
-    @Value("${classpath:reports/nota-fiscal.jrxml}")
+    @Value("classpath:reports/nota-fiscal.jrxml")
     private Resource notaFiscal;
-    @Value("${classpath:reports/logo.png}")
+    @Value("classpath:reports/logo.png")
     private Resource logo;
 
     public byte[] getNota(Pedido pedido) {
@@ -33,11 +33,12 @@ public class NotaFiscalService {
 
             params.put("DATA_PEDIDO", pedido.data());
             params.put("TOTAL_PEDIDO", pedido.total());
+            params.put("LOGO", logo.getURL().toString());
 
-            var datasource = new JRBeanCollectionDataSource(pedido.itens());
+            var dataSource = new JRBeanCollectionDataSource(pedido.itens());
 
             JasperReport jasperReport = JasperCompileManager.compileReport(is);
-            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, datasource); // passou relatorio, os parametros e os campos
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, dataSource);
 
             return JasperExportManager.exportReportToPdf(jasperPrint);
 
