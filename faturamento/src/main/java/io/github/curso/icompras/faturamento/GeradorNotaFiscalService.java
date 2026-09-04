@@ -3,6 +3,7 @@ package io.github.curso.icompras.faturamento;
 import io.github.curso.icompras.faturamento.bucket.BucketFile;
 import io.github.curso.icompras.faturamento.bucket.BucketService;
 import io.github.curso.icompras.faturamento.model.Pedido;
+import io.github.curso.icompras.faturamento.publisher.FaturamentoPublisher;
 import io.github.curso.icompras.faturamento.service.NotaFiscalService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class GeradorNotaFiscalService {
 
     private final NotaFiscalService notaFiscalService;
     private final BucketService bucketService;
+    private final FaturamentoPublisher publisher;
 
     public void gerar(Pedido pedido) {
         log.info("Gerada nota fiscal para o pedido {}", pedido.codigo());
@@ -33,6 +35,10 @@ public class GeradorNotaFiscalService {
                     byteArray.length);
 
             bucketService.upload(file);
+
+            String url = bucketService.getUrl(nomeArquivo);
+            publisher.publicar(pedido, url);
+
         } catch (Exception e){
             log.error(e.getMessage(),e);
         }
