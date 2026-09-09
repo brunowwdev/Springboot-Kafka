@@ -1,5 +1,6 @@
 package io.github.cursodsousa.icompras.logistica.subscriber;
 
+import io.github.cursodsousa.icompras.logistica.service.EnvioPedidoService;
 import io.github.cursodsousa.icompras.logistica.subscriber.representation.AtualizacaoFaturamentoRepresentation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import tools.jackson.databind.ObjectMapper;
 public class FaturamentoSubcriber {
 
     private final ObjectMapper objectMapper;
+    private final EnvioPedidoService envioPedidoService;
 
     @KafkaListener(groupId = "${spring.kafka.consumer.group-id}", topics = "${icompras.config.kafka.topics.pedidos-faturados}")
     public void listen(String json){
@@ -21,6 +23,8 @@ public class FaturamentoSubcriber {
 
         try {
             var representation =  objectMapper.readValue(json, AtualizacaoFaturamentoRepresentation.class);
+            envioPedidoService.enviar(representation.codigo(), representation.urlNotaFiscal());
+            log.info("Pedido processado com sucesso! Código: {}", representation.codigo());
 
         }catch (Exception e){
             log.error("Erro ao preparar pedido para envio: {}", e.getMessage());
