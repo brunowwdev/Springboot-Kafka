@@ -9,7 +9,8 @@ public record ClienteRepresentation(Long codigo,
                                     String numero,
                                     String bairro,
                                     String email,
-                                    String telefone
+                                    String telefone,
+                                    boolean ativo
                                     ) {
 
 }

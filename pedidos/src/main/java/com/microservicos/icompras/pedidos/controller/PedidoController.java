@@ -10,8 +10,10 @@ import com.microservicos.icompras.pedidos.publisher.DetalhePedidoMapper;
 import com.microservicos.icompras.pedidos.publisher.representation.DetalhePedidoRepresentation;
 import com.microservicos.icompras.pedidos.service.PedidoService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("pedidos")
